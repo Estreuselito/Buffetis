@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 # ignore creds
-auth.py
+Python/auth.py
