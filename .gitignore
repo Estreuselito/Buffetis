@@ -1,3 +1,10 @@
+# Ignore unneeded images
+images/python-logo.png
+images/SQLite.png
+
+# Ignore drawio files
+*.drawio
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -128,5 +135,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# ignore creds
-Python/auth.py
+# ignore database
+database/

@@ -45,7 +45,8 @@
 		"ms-python.vscode-pylance",
 		"njpwerner.autodocstring",
 		"gruntfuggly.bettercomment",
-		"himanoa.python-autopep8"
+		"himanoa.python-autopep8",
+		"yzhang.markdown-all-in-one"
 	],
 	// "containerEnv": {
 	// 	"http_proxy": "http://172.17.0.1:3128",
