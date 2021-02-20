@@ -8,7 +8,7 @@ Authors: *[Yannik Suhre](https://github.com/Estreuselito), [Jan Faulstich](https
 ![last-edited](https://img.shields.io/badge/last%20edited-20.02.2021-green)
 ![licence](https://img.shields.io/badge/licence-GPLv3-red)
 
-![Workflow](images/workflow.png)
+![Workflow](./images/Workflow.png)
 
 *The references for the logos used in this picture can be found on the bottom of this README.*
 
