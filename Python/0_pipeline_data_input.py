@@ -7,5 +7,5 @@ berkshire = pd.read_csv("./Data/berkshire_investments.csv",
                         delimiter=";", encoding="utf-8")
 
 berkshire.to_sql("investments_buffet",
-                 connection=connection,
+                 con=connection,
                  if_exists="replace")
