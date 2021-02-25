@@ -2,7 +2,6 @@
 # into the database.
 import pandas as pd
 from data_storage import connection
-from sql_commands import create_table_warren_investments
 
 berkshire = pd.read_csv("./Data/berkshire_investments.csv",
                         delimiter=";",
