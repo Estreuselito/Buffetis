@@ -5,6 +5,9 @@ images/SQLite.png
 # Ignore drawio files
 *.drawio
 
+# ignore database
+database/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
