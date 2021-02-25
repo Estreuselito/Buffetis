@@ -3,9 +3,9 @@ create_table_warren_investments = '''
             year INTEGER, 
             shares INTEGER, 
             company STRING, 
-            percentage_of_company_owned DECIMAL(3, 2), 
-            cost_in_mio DECIMAL(5, 2),
-            market_in_mio DECIMAL(5, 2),
+            percentage_of_company_owned REAL, 
+            cost_in_mio REAL,
+            market_in_mio REAL,
             ticker STRING,
             net_change_shares INTEGER, 
             ) 
