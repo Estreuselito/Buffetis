@@ -3,9 +3,11 @@
 import pandas as pd
 from data_storage import connection
 import wrds
+import os
 
 wrds_conn = wrds.Connection()
 
+#libraries = 
 stocks = wrds_conn.get_table(library='crsp', 
                               table='msf', 
                               columns=['permno', 'date', 'prc', 'vol', 'ret', 'shrout'],
@@ -16,11 +18,14 @@ matchmaker = wrds_conn.get_table(library='crsp',
                                 columns = ['comnam', 'permno', 'ticker'],
                                 obs=5)
 
-fundamentals = wrds_conn.get_table(library='compd',
+fundamentals = wrds_conn.get_table(library='comp',
                                    table = 'funda',
-                                   columns = ['permno'],
+                                   columns = ['lo'],
                                    obs=5)
 
-print(fundamentals)
+ticker = pd.read_csv('./Data/Ticker_symbols.csv', sep=';')
+ticker = list(ticker.columns)
+
+
 
 
