@@ -2,10 +2,21 @@
 # into the database.
 import pandas as pd
 from data_storage import connection
+import wrds
 
-berkshire = pd.read_csv("./Data/berkshire_investments.csv",
-                        delimiter=";", encoding="utf-8")
+wrds_conn = wrds.Connection()
 
-berkshire.to_sql("investments_buffet",
-                 connection=connection,
-                 if_exists="replace")
+stocks = wrds_conn.get_table(library='crsp', 
+                              table='msf', 
+                              columns=['permno', 'date', 'prc', 'vol', 'ret', 'shrout'],
+                              obs=5)
+
+matchmaker = wrds_conn.get_table(library='crsp',
+                                table = 'mse',
+                                columns = ['comnam', 'permno', 'ticker'],
+                                obs=5)
+
+
+print(matchmaker)
+
+
