@@ -16,7 +16,11 @@ matchmaker = wrds_conn.get_table(library='crsp',
                                 columns = ['comnam', 'permno', 'ticker'],
                                 obs=5)
 
+fundamentals = wrds_conn.get_table(library='compd',
+                                   table = 'funda',
+                                   columns = ['permno'],
+                                   obs=5)
 
-print(matchmaker)
+print(fundamentals)
 
 
