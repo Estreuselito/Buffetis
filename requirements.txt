@@ -1,2 +1,7 @@
 pandas==1.2.2
 autopep8
+tqdm
+python-edgar
+beautifulsoup4==4.9.3
+requests==2.25.1
+lxml

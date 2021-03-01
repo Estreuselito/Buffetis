@@ -5,6 +5,9 @@ images/SQLite.png
 # Ignore drawio files
 *.drawio
 
+# ignore data
+data/
+
 # ignore database
 database/
 
