@@ -147,3 +147,4 @@ dmypy.json
 
 # ignore database
 database/
+Data/
