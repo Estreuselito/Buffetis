@@ -51,29 +51,45 @@ class SEC():
                                     con=self.connection,
                                     if_exists="append")), tqdm(os.listdir(self.path))))
 
-    def extract_info_13F_from2014(self, url):
+    def extract_info_13F_from2014(self, urls):
+        """This function returns the infos from the 13F SEC filings from 2014 onwards
+
+        Parameters
+        ----------
+        urls : list of str
+            This is the list of the respective website endings to the edgar archive
+
+        Returns
+        -------
+        pd.DataFrame
+            Returns a Pandas Dataframe, where the SEC filings are stored
+        """
+        columns = ["SharesHeld", "MarketValue",
+                   "CUSIP", "Class", "NameOfCompany", "date", "url"]
+        df = pd.DataFrame(columns=columns)
         standard_url = "https://www.sec.gov/Archives/"
-        response = get(url)
-        html_soup = BeautifulSoup(response.text, 'lxml')
-        date = datetime.strptime(html_soup.find(
-            'signaturedate').contents[0], '%m-%d-%Y')
-        name = html_soup.find('name').contents[0]
-        cols = ['sshPrnamt', 'value', 'cusip', "titleOfClass", 'nameOfIssuer']
-        data = []
-        # print("Processing " + name + " (" + CIK + ") for date " + str(date))
-        for infotable in html_soup.find_all(['ns1:infotable', 'infotable']):
-            row = []
-            for col in cols:
-                data2 = infotable.find([col.lower(), 'ns1:' + col.lower()])
-                if data2 is not None:
-                    row.append(data2.getText())
-            row.append(date)
-            row.append(standard_url + url)
-            data.append(row)
-        df = pd.DataFrame(data)
-        cols.append('date')
-        df.columns = ["SharesHeld", "MarketValue",
-                      "CUSIP", "Class", "NameOfCompany", "date", "url"]
+        for url in tqdm(urls):
+            response = get(standard_url + url)
+            html_soup = BeautifulSoup(response.text, 'lxml')
+            date = datetime.strptime(html_soup.find(
+                'signaturedate').contents[0], '%m-%d-%Y')
+            name = html_soup.find('name').contents[0]
+            cols = ['sshPrnamt', 'value', 'cusip',
+                    "titleOfClass", 'nameOfIssuer']
+            data = []
+            for infotable in html_soup.find_all(['ns1:infotable', 'infotable']):
+                row = []
+                for col in cols:
+                    data2 = infotable.find([col.lower(), 'ns1:' + col.lower()])
+                    if data2 is not None:
+                        row.append(data2.getText())
+                row.append(date)
+                row.append(standard_url + url)
+                data.append(row)
+            tmp = pd.DataFrame(data)
+            cols.append('date')
+            tmp.columns = columns
+            df = df.append(tmp)
         return df
 
     def extract_info_13F_until2012(self, urls):
@@ -143,7 +159,8 @@ class SEC():
                                    r"\1      \2", tmp27)
                     tmp29 = re.sub(
                         r"(Liberty Media)\s*(Lib Cap Corp........)", r"\1 \2", tmp28)
-                    for line in tmp29.replace("-\n", "").split("\n"):
+                    tmp30 = re.sub(r"(82028k)\s(20)\s(0)", r"82028K200", tmp29)
+                    for line in tmp30.replace("-\n", "").split("\n"):
                         data = [x for x in line.split("  ") if x][::-1]
                         if not data:
                             continue
@@ -171,9 +188,3 @@ class SEC():
         df["url"] = url_list
 
         return df
-
-
-# standard_url = "https://www.sec.gov/Archives/"
-# addon = "edgar/data/1067983/0000950123-20-012127.txt"
-
-# parse(standard_url + addon, "0000950123")
