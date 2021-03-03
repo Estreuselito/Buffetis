@@ -102,7 +102,11 @@ class SEC():
                     tm = html_soup.find_all("table")[tables].find(["c", "C"]).getText()[11:re.search("                         ------", html_soup.find_all(
                         "table")[tables].find(["c", "C"]).getText()).start()]
                     tmp0 = re.sub(r"(?<=[\n])\s+", " ", tm)
-                    tmp1 = re.sub(r"(?<=[a-z&.,])\n", "", tmp0)
+                    tmp = re.sub(r"(CLA SPL)\s(20030N200)",
+                                 r"\1     \2", tmp0)
+                    tmp = re.sub(r"(CLA SP L)\s(20030N200)",
+                                 r"\1     \2", tmp)
+                    tmp1 = re.sub(r"(?<=[a-z&.,])\n", "", tmp)
                     tmp2 = re.sub(r"  (?=[a-z])", " ", tmp1)
                     tmp3 = re.sub(r"([a-z])([A-Z])", r"\1 \2", tmp2)
                     tmp4 = re.sub(r"-\n\s+", r"", tmp3)
@@ -111,7 +115,7 @@ class SEC():
                     tmp6 = re.sub(
                         r"([ComBADRCVASPL])\s*([A-Z0-9][0-9][0-9][0-9][0-9][0-9A-Za-z][0-9][0-9][0-9A-Z])", r"\1       \2", tmp5)  # This should divide the Com from the CUISP
                     tmp7 = re.sub(
-                        r"(Com)\s([A-Z0-9][0-9][0-9][0-9][0-9][0-9A-Za-z][0-9][0-9][0-9A-Z])", r"\1       \2", tmp6)
+                        r"(ComSPL)\s([A-Z0-9][0-9][0-9][0-9][0-9][0-9A-Za-z][0-9][0-9][0-9A-Z])", r"\1       \2", tmp6)
                     tmp8 = re.sub(r"(Ins.)\s+\b([A-Z])", r"\1 \2", tmp7)
                     tmp9 = re.sub(
                         r"\b([A-Za-z.])\s+(ComClADRCLA)", r"\1    \2", tmp8)
@@ -135,15 +139,35 @@ class SEC():
                     tmp22 = re.sub(
                         r"(,\s[0-9][0-9])\s([0-9])", r"\1       \2", tmp21)
                     tmp23 = re.sub(r"(Corporation)\s*(PFD)", r"\1 \2", tmp22)
-                    for line in tmp23.replace("-\n", "").split("\n"):
+                    tmp24 = re.sub(r"(Comcast)\s*(5, 10, 11, 13, 16,)(Corp)",
+                                   r"\1 \3", tmp23)
+                    tmp25 = re.sub(r"(?<=SPL)\s(20030N200)",
+                                   r"        \1     ", tmp24)
+                    tmp26 = re.sub(r"(?<=SP L)\s(20030N200)",
+                                   r"        \1     ", tmp25)
+                    tmp27 = re.sub(r"(Com A)\s(530322106)",
+                                   r"\1     \2", tmp26)
+                    tmp28 = re.sub(r"(CVA)\s*(81211K209)",
+                                   r"\1      \2", tmp27)
+                    tmp29 = re.sub(
+                        r"(Liberty Media)\s*(Lib Cap Corp........)", r"\1 \2", tmp28)
+                    for line in tmp29.replace("-\n", "").split("\n"):
                         # print(line)
                         # url_list.append(standard_url + url)
-                        tmp = pd.DataFrame(
-                            [x for x in line.split("  ") if x][::-1]).T
+                        data = [x for x in line.split("  ") if x][::-1]
+                        if not data:
+                            continue
+                        tmp = pd.DataFrame(data).T
                         # This does not work. This puts the some lines into the wrong columns
-                        if len([x for x in line.split("  ") if x][::-1]) >= 5:
+                        if len([x for x in line.split("  ") if x][::-1]) > 6:
                             tmp.columns = ["Voting Authority", "Other Managers", "Investment Discretion",
                                            "Shares", "Market Value", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
+                        elif len(data) == 6:
+                            tmp.columns = ["Investment Discretion",
+                                           "Shares", "Market Value", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
+                        elif len(data) == 5:
+                            tmp.columns = ["Voting Authority", "Other Managers", "Investment Discretion",
+                                           "Shares", "Market Value"][:tmp.shape[1]]
                         else:
                             tmp.columns = ["Investment Discretion",
                                            "Shares", "Market Value", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
