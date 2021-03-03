@@ -11,22 +11,22 @@ SEC = SEC(connection, "BERKSHIRE HATHAWAY INC", "13F-HR")
 # SEC.get_index(1993)
 # SEC.save_to_database()
 
-urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
-                   connection, parse_dates=['DateOfIssue']).query('DateOfIssue <= "2012-03-01"')
-until_2012 = SEC.extract_info_13F_until2012(urls["TextUrl"])
-
 # urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
-#                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue >= "2013-08-01"')
-# df = pd.DataFrame()
-# standard_url = "https://www.sec.gov/Archives/"
-# for url in tqdm(urls["TextUrl"]):
-#     from_2014 = df.append(SEC.extract_info_13F_from2014(
-#         standard_url + url, CIK="0000950123"))
+#                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue <= "2012-03-01"')
+# until_2012 = SEC.extract_info_13F_until2012(urls["TextUrl"])
 
-until_2012.to_sql("Quarterly_investments_until2012",
-                  connection, if_exists="replace")
-# from_2014.to_sql("Quarterly_investments_from2014",
-#                  connection, if_exists="replace")
+urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
+                   connection, parse_dates=['DateOfIssue']).query('DateOfIssue >= "2013-08-01"')
+df = pd.DataFrame()
+standard_url = "https://www.sec.gov/Archives/"
+for url in tqdm(urls["TextUrl"]):
+    from_2014 = df.append(SEC.extract_info_13F_from2014(
+        standard_url + url))
+
+# until_2012.to_sql("Quarterly_investments_until2012",
+#                   connection, if_exists="replace")
+from_2014.to_sql("Quarterly_investments_from2014",
+                 connection, if_exists="replace")
 
 
 # parse(standard_url + addon, "0000950123")

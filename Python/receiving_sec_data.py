@@ -51,17 +51,14 @@ class SEC():
                                     con=self.connection,
                                     if_exists="append")), tqdm(os.listdir(self.path))))
 
-    def extract_info_13F_from2014(self, url, CIK):
+    def extract_info_13F_from2014(self, url):
+        standard_url = "https://www.sec.gov/Archives/"
         response = get(url)
         html_soup = BeautifulSoup(response.text, 'lxml')
-        try:
-            date = datetime.strptime(html_soup.find(
-                'signaturedate').contents[0], '%m-%d-%Y')
-            name = html_soup.find('name').contents[0]
-        except:
-            return
-        cols = ['nameOfIssuer', 'CUSIP', 'Market Value',
-                'sshPrnamt', 'sshPrnamtType']
+        date = datetime.strptime(html_soup.find(
+            'signaturedate').contents[0], '%m-%d-%Y')
+        name = html_soup.find('name').contents[0]
+        cols = ['sshPrnamt', 'value', 'cusip', "titleOfClass", 'nameOfIssuer']
         data = []
         # print("Processing " + name + " (" + CIK + ") for date " + str(date))
         for infotable in html_soup.find_all(['ns1:infotable', 'infotable']):
@@ -71,22 +68,17 @@ class SEC():
                 if data2 is not None:
                     row.append(data2.getText())
             row.append(date)
-            row.append(CIK)
-            row.append(name)
+            row.append(standard_url + url)
             data.append(row)
         df = pd.DataFrame(data)
         cols.append('date')
-        # cols.append('fund_cik')
-        cols.append('fund')
-        try:
-            df.columns = cols
-            return df
-        except:
-            return
+        df.columns = ["SharesHeld", "MarketValue",
+                      "CUSIP", "Class", "NameOfCompany", "date", "url"]
+        return df
 
     def extract_info_13F_until2012(self, urls):
         df = pd.DataFrame(columns=["Voting Authority", "Other Managers", "Investment Discretion",
-                                   "Shares", "Market Value", "CUSIP", "Class", "NameOfCompany", "date", "url"])
+                                   "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany", "date", "url"])
         date_list, url_list = [], []
         standard_url = "https://www.sec.gov/Archives/"
         for url in tqdm(urls):
@@ -152,26 +144,22 @@ class SEC():
                     tmp29 = re.sub(
                         r"(Liberty Media)\s*(Lib Cap Corp........)", r"\1 \2", tmp28)
                     for line in tmp29.replace("-\n", "").split("\n"):
-                        # print(line)
-                        # url_list.append(standard_url + url)
                         data = [x for x in line.split("  ") if x][::-1]
                         if not data:
                             continue
                         tmp = pd.DataFrame(data).T
-                        # This does not work. This puts the some lines into the wrong columns
                         if len([x for x in line.split("  ") if x][::-1]) > 6:
                             tmp.columns = ["Voting Authority", "Other Managers", "Investment Discretion",
-                                           "Shares", "Market Value", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
+                                           "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
                         elif len(data) == 6:
                             tmp.columns = ["Investment Discretion",
-                                           "Shares", "Market Value", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
+                                           "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
                         elif len(data) == 5:
                             tmp.columns = ["Voting Authority", "Other Managers", "Investment Discretion",
-                                           "Shares", "Market Value"][:tmp.shape[1]]
+                                           "SharesHeld", "MarketValue"][:tmp.shape[1]]
                         else:
                             tmp.columns = ["Investment Discretion",
-                                           "Shares", "Market Value", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
-                    # print(df.append(tmp, ignore_index=True))
+                                           "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
                         df = df.append(tmp, ignore_index=True)
                         [date_list.append(date) for y in range(0, len(tmp))]
                         [url_list.append(standard_url + url)
