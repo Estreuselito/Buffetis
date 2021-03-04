@@ -11,7 +11,7 @@ from get_cusips import Cusips
 # Yanniks usage
 wrds_conn = wrds.Connection()
 
-# # the following line of code, receivces all data from the SEC file server
+# the following line of code, receivces all data from the SEC file server
 SEC = SEC(connection, "BERKSHIRE HATHAWAY INC", "13F-HR")
 SEC.get_index(1993)
 SEC.save_to_database()
@@ -48,27 +48,28 @@ berkshire.to_sql("investments_buffet",
 # Currently we want to get all stock informations of S&P 500 companies plus
 # Warren Buffets investments
 ticker = Cusips()
+total_cusips = ticker.get_all_cusips()
 
 stocks_m = wrds_conn.raw_sql(f"""select 
-                            a.permno ,
-                            a.cusip, 
-                            a.date, 
-                            b.comnam as company_name, 
+                            a.permno as permno,
+                            a.cusip as cusip , 
+                            a.date as date, 
+                            b.comnam as company_name,
                             a.prc as price, 
                             a.vol as volume, 
                             a.ret as return, 
                             a.retx as return_ex, 
                             a.shrout as shares_outstanding
+
                             from crsp.msf a
                             join crsp.mse b on b.cusip = a.cusip and a.permno = b.permno
-                            where b.ticker in {ticker.ticker_names}
-                            and a.date>='01/01/1980'"""
+                            where a.date>='01/01/1980'
+                            and a.cusip in {total_cusips}"""
                              )
 
 stocks_m.to_sql("stocks_m", connection, if_exists="replace", index=False)
 
 
-total_cusips = ticker.get_all_cusips()
 # This is accessing and downloading the anual fundamental data of Wharton for
 # all S&P 500 companies plus Warren Buffets investments based on a ticker filter
 fundamentals_a = wrds_conn.raw_sql(f""" select 
@@ -76,9 +77,6 @@ fundamentals_a = wrds_conn.raw_sql(f""" select
                                   a.cusip as cusip, 
                                   a.conm as company_name,
                                   a.fdate as date_a,
-                                  b.gind as gic_indusrtry,
-                                  b.gsubind as gic_subindustry,
-                                  b.gsector as gic_sector,
                                   a.gp as gross_profit,
                                   a.revt as revenue_total,
                                   a.xsga as sga,
@@ -108,8 +106,7 @@ fundamentals_a = wrds_conn.raw_sql(f""" select
                                    from comp.funda a
 
                                    where a.fdate >='01/01/1980' 
-                                   and a.cusip in {total_cusips}
-                                   join comp.name b on a.gvkey = b.gvkey"""
+                                   and a.cusip in {total_cusips}"""
                                    )
 
 fundamentals_a.to_sql("fundamentals_a", connection,

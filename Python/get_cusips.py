@@ -1,5 +1,6 @@
 import pandas as pd
 from data_storage import connection
+import wrds
 
 
 class Cusips():
@@ -56,6 +57,7 @@ class Cusips():
                                                'XYL', 'YUM', 'ZBRA', 'ZBH', 'ZION', 'ZTS')'''
 
     def get_all_cusips(self):
+        wrds_conn = wrds.Connection()
         #get cusips from Warren Buffets investment
         cusips_yannik = pd.read_sql_query("select distinct cusip from Quarterly_investments", connection)
 
@@ -64,7 +66,12 @@ class Cusips():
         cusips_yannik = cusips_dict_yannik['CUSIP']
 
         #get the cusips from S&P 500 companies
-        cusips_jan = pd.read_sql_query("select distinct cusip from stocks_m", connection)
+        #cusips_jan = pd.read_sql_query("select distinct cusip from stocks_m", connection)
+        cusips_jan = wrds_conn.raw_sql(f"""select distinct a.cusip 
+                                          from crsp.msf a
+                                          join crsp.mse b on b.cusip = a.cusip and a.permno = b.permno
+                                          where a.date >='01/01/1980'
+                                          and b.ticker in {self.ticker_names}""")
 
         cusips_dict_jan = cusips_jan.to_dict(orient= 'list')
 
@@ -73,10 +80,7 @@ class Cusips():
         #merge both cusip sources and filter the duplicates
         total_cusips = list(cusips_jan)
         total_cusips.extend(x for x in cusips_yannik if x not in total_cusips if x is not None)
-    
+        
+        wrds_conn.close()
 
         return tuple(total_cusips)
-
-
-
-
