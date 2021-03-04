@@ -65,3 +65,32 @@ fundamental_ratios_annual = pd.DataFrame.from_dict(fundamental_ratios)
 
 fundamental_ratios_annual.to_sql(
     "fundamental_ratios_annual", connection, if_exists="replace", index=False)
+
+
+# calculate all quarterly fundamental ratios
+
+fundamental_ratios_q = {}
+
+fundamental_ratios_q['sga_expense_ratio'] = Financial_metric.sga_expense_ratio(
+    df_q['sga_q'], df_q['revenue_q'])
+
+fundamental_ratios_q['rnd_expense_ratio'] = Financial_metric.rnd_expense_ratio(
+    df_q['r_and_d_q'], df_q['revenue_q'])
+
+fundamental_ratios_q['depreciation_expense_ratio'] = Financial_metric.depreciation_expense_ratio(
+    df_q['depr_amort_q'], df_q['revenue_q'])
+
+fundamental_ratios_q['interest_expense_ratio'] = Financial_metric.interest_expense_ratio(
+    df_q['interest_expenses_q'], df_q['revenue_q'])
+
+fundamental_ratios_q['net_profit_margin'] = Financial_metric.net_profit_margin(
+    df_q['net_income_q'], df_q['revenue_q'])
+
+fundamental_ratios_q['lt_debt_ratio'] = Financial_metric.lt_debt_ratio(
+    df_q['long_term_debt_q'], df_q['net_income_q'])
+
+
+fundamental_ratios_quarter = pd.DataFrame.from_dict(fundamental_ratios)
+
+fundamental_ratios_quarter.to_sql(
+    "fundamental_ratios_quarter", connection, if_exists="replace", index=False)
