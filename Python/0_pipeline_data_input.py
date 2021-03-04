@@ -6,9 +6,9 @@ from receiving_sec_data import SEC
 import wrds
 
 # General usage
-# wrds_conn = wrds.Connection()
+wrds_conn = wrds.Connection()
 # Yanniks usage
-wrds_conn = wrds.Connection(wrds_username="gacela")
+# wrds_conn = wrds.Connection(wrds_username="gacela")
 
 # These are test connections to all needed libraries
 stocks = wrds_conn.get_table(library='crsp',
