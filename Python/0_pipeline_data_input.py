@@ -76,6 +76,9 @@ fundamentals_a = wrds_conn.raw_sql(f""" select
                                   a.cusip as cusip, 
                                   a.conm as company_name,
                                   a.fdate as date_a,
+                                  b.gind as gic_indusrtry,
+                                  b.gsubind as gic_subindustry,
+                                  b.gsector as gic_sector,
                                   a.gp as gross_profit,
                                   a.revt as revenue_total,
                                   a.xsga as sga,
@@ -105,7 +108,8 @@ fundamentals_a = wrds_conn.raw_sql(f""" select
                                    from comp.funda a
 
                                    where a.fdate >='01/01/1980' 
-                                   and a.cusip in {total_cusips}"""
+                                   and a.cusip in {total_cusips}
+                                   join comp.name b on a.gvkey = b.gvkey"""
                                    )
 
 fundamentals_a.to_sql("fundamentals_a", connection,
@@ -139,6 +143,11 @@ fundamentals_q = wrds_conn.raw_sql(f""" select
 
 fundamentals_q.to_sql("fundamentals_q", connection,
                       if_exists="replace", index=False)
+
+
+
+
+
 
 # Once we do not need the database anymore, we can close it
 wrds_conn.close()

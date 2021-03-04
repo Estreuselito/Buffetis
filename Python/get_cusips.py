@@ -53,9 +53,7 @@ class Cusips():
                                                'VRSN', 'VRSK', 'VZ', 'VRTX', 'VFC', 'VIAC', 'VTRS', 'V', 'VNT', 'VNO', 'VMC', 
                                                'WRB', 'WAB', 'WMT', 'WBA', 'DIS', 'WM', 'WAT', 'WEC', 'WFC', 'WELL', 'WST', 
                                                'WDC', 'WU', 'WRK', 'WY', 'WHR', 'WMB', 'WLTW', 'WYNN', 'XEL', 'XRX', 'XLNX', 
-                                               'XYL', 'YUM', 'ZBRA', 'ZBH', 'ZION', 'ZTS', 'BKPRC', 'CCC3', 'OYC', 'USG', 
-                                               'BYDDF', 'SNY', 'T.1', 'DTV', 'MUV2', 'TSCDY', 'PKX', 'SREN', 'BUD', 'BNSF', 
-                                               'WTM', 'PTR', 'GILETTE', 'HCA.1', 'FMCC', 'WDP', 'FHL', 'CCP')'''
+                                               'XYL', 'YUM', 'ZBRA', 'ZBH', 'ZION', 'ZTS')'''
 
     def get_all_cusips(self):
         #get cusips from Warren Buffets investment

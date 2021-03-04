@@ -15,7 +15,9 @@ Financial_metric = Financial_ratios()
 fundamental_ratios = {}
 
 fundamental_ratios['cusip'] = df_a['cusip']
+
 fundamental_ratios['company_name'] = df_a['company_name']
+
 fundamental_ratios['gross_profit_margin'] = Financial_metric.gross_profit_margin(
     df_a['gross_profit'], df_a['revenue_total'])
 
