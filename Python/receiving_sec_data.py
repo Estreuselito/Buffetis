@@ -49,7 +49,7 @@ class SEC():
                             .query(f'CompanyName == "{self.company_name}" and Filing == "{self.filing}"')
                             .to_sql("SEC_filing_index",
                                     con=self.connection,
-                                    if_exists="append")), tqdm(os.listdir(self.path))))
+                                    if_exists="append")), tqdm(os.listdir(self.path), desc="saving to database!")))
 
     def extract_info_13F_from2014(self, urls):
         """This function returns the infos from the 13F SEC filings from 2014 onwards
@@ -68,7 +68,7 @@ class SEC():
                    "CUSIP", "Class", "NameOfCompany", "date", "url"]
         df = pd.DataFrame(columns=columns)
         standard_url = "https://www.sec.gov/Archives/"
-        for url in tqdm(urls):
+        for url in tqdm(urls, desc="getting data from 2014 onwards..."):
             response = get(standard_url + url)
             html_soup = BeautifulSoup(response.text, 'lxml')
             date = datetime.strptime(html_soup.find(
@@ -97,7 +97,7 @@ class SEC():
                                    "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany", "date", "url"])
         date_list, url_list = [], []
         standard_url = "https://www.sec.gov/Archives/"
-        for url in tqdm(urls):
+        for url in tqdm(urls, desc="getting data until 2012..."):
             #print(standard_url + url)
             req = get(standard_url + url)
             html_soup = BeautifulSoup(req.text, 'html.parser')
