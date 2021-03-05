@@ -16,9 +16,6 @@ SEC = SEC(connection, "BERKSHIRE HATHAWAY INC", "13F-HR")
 SEC.get_index(1993)
 SEC.save_to_database()
 
-berkshire = pd.read_csv("./Data/berkshire_investments.csv",
-                        delimiter=";", encoding="utf-8")
-
 # Queries the urls from the database
 urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue <= "2012-03-01"')
@@ -39,10 +36,6 @@ until_2012.to_sql("Quarterly_investments",
 # Append to that table
 from_2014.to_sql("Quarterly_investments",
                  connection, if_exists="append", index=False)
-
-berkshire.to_sql("investments_buffet",
-                 connection,
-                 if_exists="replace")
 
 # This is accessing and downlaoding the correct stock data of Wharton on a monthly basis
 # Currently we want to get all stock informations of S&P 500 companies plus
@@ -140,10 +133,6 @@ fundamentals_q = wrds_conn.raw_sql(f""" select
 
 fundamentals_q.to_sql("fundamentals_q", connection,
                       if_exists="replace", index=False)
-
-
-
-
 
 
 # Once we do not need the database anymore, we can close it
