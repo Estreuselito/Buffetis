@@ -10,7 +10,7 @@ class Cusips():
         # get cusips from Warren Buffets investment
         cusips_yannik = pd.read_sql_query(
             "select distinct cusip from Quarterly_investments", sql_connection)
-
+            
         cusips_dict_yannik = cusips_yannik.to_dict(orient='list')
 
         cusips_yannik = cusips_dict_yannik['CUSIP']

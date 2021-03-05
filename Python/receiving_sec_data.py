@@ -93,6 +93,22 @@ class SEC():
         return df
 
     def extract_info_13F_until2012(self, urls):
+        """This function extracts the SEC filing data \
+            from the 13F filings until 2012. This function \
+            is used for Berkshire Hathaway specificly \
+            but could be transformed to work for any other \
+            stock.
+
+        Parameters
+        ----------
+        urls : pd.Series
+            Contains the last part of the URLs for the edgar archive files
+
+        Returns
+        -------
+        pd.DataFrame
+            The extracted information from the SEC filings
+        """
         df = pd.DataFrame(columns=["Voting Authority", "Other Managers", "Investment Discretion",
                                    "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany", "date", "url"])
         date_list, url_list = [], []
@@ -195,3 +211,21 @@ class SEC():
         df["url"] = url_list[:len(df)]
 
         return df
+
+    def clean_SEC_filings(self):
+        """This function cleans the dataframe which was earlier saved in \
+           in the database
+        """
+        (pd.read_sql("""SELECT CAST(CUSIP AS varchar) AS CUSIP,
+                           CAST(MarketValue AS int) AS MarketValue,
+                           CAST(SharesHeld as int) AS SharesHeld,
+                           CAST(date AS varchar) AS date
+                    FROM Quarterly_investments""",
+                     connection)
+         .ffill()
+            .groupby(by=["CUSIP", "date"])
+            .sum()
+            .reset_index()
+            .to_sql("Clean_SEC_filings", connection, if_exists="replace", index=False))
+
+        return True

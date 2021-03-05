@@ -37,6 +37,8 @@ until_2012.to_sql("Quarterly_investments",
 from_2014.to_sql("Quarterly_investments",
                  connection, if_exists="append", index=False)
 
+SEC.clean_SEC_filings()
+
 # This is accessing and downlaoding the correct stock data of Wharton on a monthly basis
 # Currently we want to get all stock informations of S&P 500 companies plus
 # Warren Buffets investments
