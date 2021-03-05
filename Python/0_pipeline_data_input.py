@@ -49,7 +49,7 @@ total_cusips = ticker.get_all_cusips(wrds_conn, connection)
 # all S&P 500 companies plus Warren Buffets investments based on a ticker filter
 fundamentals_a = wrds_conn.raw_sql(f""" select 
                                   a.tic as ticker, 
-                                  a.cusip as cusip, 
+                                  substring(a.cusip, 1, 8) as cusip, 
                                   a.conm as company_name,
                                   a.fdate as date_a,
                                   a.gp as gross_profit,
@@ -90,7 +90,7 @@ fundamentals_a.to_sql("fundamentals_a", connection,
 #
 fundamentals_q = wrds_conn.raw_sql(f""" select 
                                    b.tic as ticker, 
-                                   b.cusip as cusip, 
+                                   substring(b.cusip, 1, 8) as cusip, 
                                    b.conm as company_name,
                                    b.fdateq as date_q,
                                    b.xsgaq as sga_q,
