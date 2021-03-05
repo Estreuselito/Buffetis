@@ -34,6 +34,5 @@ fundamental_ratios_annual = pd.DataFrame.from_dict({
     # "market_timing": Financial_metric.market_timing(price, earnings_ratio)
 })
 
-
 fundamental_ratios_annual.to_sql(
     "fundamental_ratios_annual", connection, if_exists="replace", index=False)
