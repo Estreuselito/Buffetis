@@ -92,7 +92,7 @@ fundamental_ratios_q['lt_debt_ratio'] = Financial_metric.lt_debt_ratio(
     df_q['long_term_debt_q'], df_q['net_income_q'])
 
 
-fundamental_ratios_quarter = pd.DataFrame.from_dict(fundamental_ratios)
+fundamental_ratios_quarter = pd.DataFrame.from_dict(fundamental_ratios_q)
 
 fundamental_ratios_quarter.to_sql(
     "fundamental_ratios_quarter", connection, if_exists="replace", index=False)
