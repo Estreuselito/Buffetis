@@ -13,7 +13,7 @@ class Cusips():
 
         cusips_yannik = cusips_dict_yannik['CUSIP']
 
-        #merge both cusip sources and filter the duplicates
+        # merge both cusip sources and filter the duplicates
         total_cusips = [x for x in cusips_yannik if x is not None]
 
         return tuple(total_cusips)
