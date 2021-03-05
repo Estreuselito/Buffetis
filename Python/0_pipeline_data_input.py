@@ -45,24 +45,6 @@ SEC.clean_SEC_filings()
 ticker = Cusips()
 total_cusips = ticker.get_all_cusips(wrds_conn, connection)
 
-stocks_m = wrds_conn.raw_sql(f"""select 
-                            a.permno as permno,
-                            a.cusip as cusip , 
-                            a.date as date, 
-                            b.comnam as company_name,
-                            a.prc as price, 
-                            a.vol as volume, 
-                            a.ret as return, 
-                            a.retx as return_ex, 
-                            a.shrout as shares_outstanding
-                            from crsp.msf a
-                            join crsp.mse b on b.cusip = a.cusip and a.permno = b.permno
-                            where a.date>='01/01/1980'
-                            and a.cusip in {total_cusips}"""
-                             )
-
-stocks_m.to_sql("stocks_m", connection, if_exists="replace", index=False)
-
 # This is accessing and downloading the anual fundamental data of Wharton for
 # all S&P 500 companies plus Warren Buffets investments based on a ticker filter
 fundamentals_a = wrds_conn.raw_sql(f""" select 
@@ -128,6 +110,26 @@ fundamentals_q = wrds_conn.raw_sql(f""" select
 
 fundamentals_q.to_sql("fundamentals_q", connection,
                       if_exists="replace", index=False)
+
+total_ticker = ticker.get_all_ticker()
+
+stocks_m = wrds_conn.raw_sql(f"""select 
+                            a.permno as permno,
+                            a.cusip as cusip , 
+                            a.date as date,
+                            b.comnam as company_name, 
+                            a.prc as price, 
+                            a.vol as volume, 
+                            a.ret as return, 
+                            a.retx as return_ex, 
+                            a.shrout as shares_outstanding
+                            from crsp.msf a
+                            join crsp.mse b on a.cusip = b.cusip and a.permno = b.permno
+                            where a.date>='01/01/1980'
+                            and b.ticker in {total_ticker}"""
+                             )
+
+stocks_m.to_sql("stocks_m", connection, if_exists="replace", index=False)
 
 
 # Once we do not need the database anymore, we can close it
