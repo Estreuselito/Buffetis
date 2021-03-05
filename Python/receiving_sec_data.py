@@ -161,7 +161,8 @@ class SEC():
                         r"(Liberty Media)\s*(Lib Cap Corp........)", r"\1 \2", tmp28)
                     tmp30 = re.sub(r"(82028k)\s(20)\s(0)", r"82028K200", tmp29)
                     for line in tmp30.replace("-\n", "").split("\n"):
-                        data = [x for x in line.split("  ") if x][::-1]
+                        data = [x.lstrip()  # added the lstrip here
+                                for x in line.split("  ") if x][::-1]
                         if not data:
                             continue
                         tmp = pd.DataFrame(data).T
@@ -184,7 +185,13 @@ class SEC():
                 else:
                     continue
 
-        df["date"] = date_list
-        df["url"] = url_list
+        # added this line here
+        df = df[df["SharesHeld"].notna()]
+        df = df[~df["SharesHeld"].isin(
+            ["Companies", 'Chemical Corp.', 'house Inc.', 'Corp.', 'Mellon Corp.', 'Co.', 'X', 'cations Inc.', 'Co. 1887'])]
+        df["SharesHeld"] = df["SharesHeld"].str.replace(
+            ",", "", regex=True).astype(int)
+        df["date"] = date_list[:len(df)]
+        df["url"] = url_list[:len(df)]
 
         return df
