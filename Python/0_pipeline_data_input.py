@@ -11,7 +11,7 @@ from get_cusips import Cusips
 # Yanniks usage
 wrds_conn = wrds.Connection(wrds_username="gacela")
 
-# the following line of code, receivces all data from the SEC file server
+# # the following line of code, receivces all data from the SEC file server
 SEC = SEC(connection, "BERKSHIRE HATHAWAY INC", "13F-HR")
 SEC.get_index(1993)
 SEC.save_to_database()
@@ -41,7 +41,7 @@ from_2014.to_sql("Quarterly_investments",
 # Currently we want to get all stock informations of S&P 500 companies plus
 # Warren Buffets investments
 ticker = Cusips()
-total_cusips = ticker.get_all_cusips()
+total_cusips = ticker.get_all_cusips(wrds_conn, connection)
 
 stocks_m = wrds_conn.raw_sql(f"""select 
                             a.permno as permno,
@@ -53,7 +53,6 @@ stocks_m = wrds_conn.raw_sql(f"""select
                             a.ret as return, 
                             a.retx as return_ex, 
                             a.shrout as shares_outstanding
-
                             from crsp.msf a
                             join crsp.mse b on b.cusip = a.cusip and a.permno = b.permno
                             where a.date>='01/01/1980'
@@ -61,7 +60,6 @@ stocks_m = wrds_conn.raw_sql(f"""select
                              )
 
 stocks_m.to_sql("stocks_m", connection, if_exists="replace", index=False)
-
 
 # This is accessing and downloading the anual fundamental data of Wharton for
 # all S&P 500 companies plus Warren Buffets investments based on a ticker filter
@@ -95,11 +93,9 @@ fundamentals_a = wrds_conn.raw_sql(f""" select
                                   a.dv as cash_dividends,
                                   a.dltis as long_term_debt_issuance,
                                   a.dltr as long_term_debt_reduction
-
-                                   from comp.funda a
-
-                                   where a.fdate >='01/01/1980' 
-                                   and a.cusip in {total_cusips}"""
+                                  from comp.funda a
+                                  where a.fdate >='01/01/1980' 
+                                  and a.cusip in {total_cusips}"""
                                    )
 
 fundamentals_a.to_sql("fundamentals_a", connection,
@@ -123,12 +119,9 @@ fundamentals_q = wrds_conn.raw_sql(f""" select
                                    b.reunaq as unadj_retained_earnings_q,
                                    b.req as retained_earnings_q,
                                    b.tstkq as treasury_stock_total_q
-
-
-                                    from comp.fundq b
-
-                                    where b.fdateq >= '01/01/1980' 
-                                    and b.cusip in {total_cusips}"""
+                                   from comp.fundq b
+                                   where b.fdateq >= '01/01/1980' 
+                                   and b.cusip in {total_cusips}"""
                                    )
 
 fundamentals_q.to_sql("fundamentals_q", connection,
