@@ -177,7 +177,7 @@ class SEC():
                         r"(Liberty Media)\s*(Lib Cap Corp........)", r"\1 \2", tmp28)
                     tmp30 = re.sub(r"(82028k)\s(20)\s(0)", r"82028K200", tmp29)
                     for line in tmp30.replace("-\n", "").split("\n"):
-                        data = [x.lstrip()  # added the lstrip here
+                        data = [x.strip()  # added the lstrip here
                                 for x in line.split("  ") if x][::-1]
                         if not data:
                             continue
