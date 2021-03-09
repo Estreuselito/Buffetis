@@ -13,6 +13,7 @@ Financial_metric = Financial_ratios()
 # calculate all annual fundamental ratios an put them into a pandas DataFrame
 fundamental_ratios_annual = pd.DataFrame.from_dict({
     "cusip": df_a['cusip'],
+    #bring the data into the database
     "company_name": df_a['company_name'],
     "gross_profit_margin": Financial_metric.gross_profit_margin(df_a['gross_profit'], df_a['revenue_total']),
     "sga_expense_ratio": Financial_metric.sga_expense_ratio(df_a['sga'], df_a['revenue_total']),
