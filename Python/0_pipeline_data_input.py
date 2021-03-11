@@ -32,9 +32,23 @@ from_2014 = SEC.extract_info_13F_from2014(urls["TextUrl"])
 # Create a new table in the database
 until_2012.to_sql("Quarterly_investments",
                   connection, if_exists="replace", index=False)
+
+from_2012_until_2013 = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
+                   "NameOfCompany", "Class", "CUSIP", "MarketValue","SharesHeld", "date"]
+                   , dtype= {"CUSIP": str})
+
+dfrom_2012_until_2013f = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
+                   "NameOfCompany", "Class", "CUSIP", "MarketValue","SharesHeld", "date"]
+                   , dtype= {"CUSIP": str})
+
+dfrom_2012_until_2013f.to_sql(
+    "Quarterly_investments", connection, if_exists="append", index=False)
+    
 # Append to that table
 from_2014.to_sql("Quarterly_investments",
                  connection, if_exists="append", index=False)
 
 SEC.clean_SEC_filings()
+
+
 
