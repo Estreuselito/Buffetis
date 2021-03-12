@@ -500,3 +500,173 @@ class Financial_ratios():
 
         market_timing = 0
         return market_timing
+
+
+def compute_financial_ratios(df):
+    print(df.columns)
+    ############################### Profitability #################################
+    # Gross Profit Margin: Gross Profit divided by Sales
+    df['Gross_Profit_Margin'] = df['gp'] / df['sale']
+
+    # SG&A Expense Ratio: Sales, General & Administrative Expenses divided by Sales
+    df['SG&A_Expense_Ratio'] = df['xsga'] / df['sale']
+
+    # R&D Expense Ratio: Research & Development Expenses divided by Sales
+    df['R&D_Expense_Ratio'] = df['xrd'] / df['sale']
+
+    # Depreciation Expense Ratio: Depreciation Expenses divided by Sales
+    df['Depreciation_Expense_Ratio'] = df['dp'] / df['sale']
+
+    # Interest Expense Ratio: Interest and Related Expenses divided by Sales
+    df['Interest_Expense_Ratio'] = df['xint'] / df['sale']
+
+    # Net Profit Margin: Net Income divided by Sales
+    df['Net_Profit_Margin'] = df['ni'] / df['sale']
+
+    # Return on Equity
+    # Shift to allow for Calculation of Return on Equity
+    df['prev_Total_Stockholders_Equity'] = df.groupby(
+        'cusip')['teq'].shift()  # cusip in groupby
+
+    # Calculation
+    # Return on Equity: Net Income divided by Average of Total Equity current year and Total Equity Stock prior year
+    df['Return_on_Equity'] = df['ni'] / \
+        ((df['teq'] + df['prev_Total_Stockholders_Equity']) / 2)
+
+    # Drop Column
+    df = df.drop(['prev_Total_Stockholders_Equity'], axis=1)
+
+    # Return on Capital Employed
+    # Shift to allow for Calculation
+    df['prev_Total_Assets'] = df.groupby('cusip')['at'].shift()
+    df['prev_Current_Liabilities'] = df.groupby('cusip')['lct'].shift()
+
+    # Calculation
+    # Return on Capital Employed = Net Income divided by the average of opening and closing Capital Employed
+    df['Return_on_Capital_Employed'] = df['ni'] / (((df['at'] - df['lct']) +
+                                                    (df['prev_Total_Assets'] - df['prev_Current_Liabilities'])) / 2)
+
+    # Drop Column
+    df = df.drop(['prev_Total_Assets'], axis=1)
+    df = df.drop(['prev_Current_Liabilities'], axis=1)
+
+    ############################ Capital Structure #################################
+    # Debt to Equity Ratio: Debt divided by Equity
+    df['D/E_Ratio'] = df['dt'] / df['teq']
+
+    # Long-Term Debt / Net Income:
+    df['Long_Term_Debt_to_Net_Income'] = df['dltt'] / df['ni']
+
+    # Fixed Assets to Total Assets: Property, Plant & Equipment divided by Total Assets
+    df['Fixed_Assets_to_Total_Assets'] = df['ppent'] / df['at']
+
+    ############################## Cash Flow #################################
+    # Free Cash Flow to Equity_1: Operating Cash Flow - Capital Expenditures + Net Debt Issued
+    df['FCFE_1'] = df['oancf'] - df['capx'] + (df['dltis']-df['dltr'])
+
+    # Growth Rate of FCFE_1
+    # Shift to allow for Calculation of Growth Rate
+    df['prev_FCFE_1'] = df.groupby('cusip')['FCFE_1'].shift()
+
+    # Calculation
+    # Change in FCFE_1: FCFE_1 current year divided by FCFE_1 prior year minus 1
+    df['Rel_Change_FCFE_1'] = (df['FCFE_1'] / df['prev_FCFE_1']) - 1
+
+    # Drop Column
+    df = df.drop(['prev_FCFE_1'], axis=1)
+
+    # Free Cash Flow to Equity_2: Operating Cash Flow + Investing Cash Flow + Net Debt Issued
+    df['FCFE_2'] = df['oancf'] + df['ivncf'] + (df['dltis']-df['dltr'])
+
+    # Growth Rate of FCFE_2
+    # Shift to allow for Calculation of Growth Rate
+    df['prev_FCFE_2'] = df.groupby('cusip')['FCFE_2'].shift()
+
+    # Calculation
+    # Change in FCFE_2: FCFE_2 current year divided by FCFE_2 prior year minus 1
+    df['Rel_Change_FCFE_2'] = (df['FCFE_2'] / df['prev_FCFE_2']) - 1
+
+    # Drop Column
+    df = df.drop(['prev_FCFE_2'], axis=1)
+
+    # Cash Flow Coverage Ratio: Operation Cash Flow / Total Debt
+    df['Cash_Flow_Coverage_Ratio'] = df['oancf'] / df['dt']
+
+    ############################ Payout Structure ############################
+    # Dividend Payout Ratio: Dividents Paid divided by Net Income
+    df['Dividend_Payout_Ratio'] = df['dv'] / df['ni']
+
+    # Growth Rate of Retained Earnings
+    # Shift to allow for Calculation of Growth Rate
+    df['prev_Retained_Earnings'] = df.groupby('cusip')['re'].shift()
+
+    # Calculation
+    # Change in Retained Earnings: Retained Earnings current year divided by Retained Earnings prior year minus 1
+    df['Rel_Change_Retained_Earnings'] = (
+        df['re'] / df['prev_Retained_Earnings']) - 1
+
+    # Drop Column
+    df = df.drop(['prev_Retained_Earnings'], axis=1)
+
+    # Growth Rate of Treasury Stock
+    # Shift to allow for Calculation of Growth Rate
+    df['prev_Treasury_Stock'] = df.groupby('cusip')['tstk'].shift()
+
+    # Calculation
+    # Change in Treasury Stock: Treasury Stock current year divided by Treasury Stock prior year minus 1
+    df['Rel_Change_Treasury_Stock'] = (
+        df['tstk'] / df['prev_Treasury_Stock']) - 1
+
+    # Drop Column
+    df = df.drop(['prev_Treasury_Stock'], axis=1)
+
+    # Growth Rate of Earnings per Share
+    df['prev_Earnings_per_Share'] = df.groupby('cusip')['epspx'].shift()
+
+    # Calculation
+    # Change in Earnings per Share: Treasury Stock current year divided by Treasury Stock prior year minus 1
+    df['Rel_Change_Earnings_per_Share'] = (
+        df['epspx'] / df['prev_Earnings_per_Share']) - 1
+
+    # Drop Column
+    df = df.drop(['prev_Earnings_per_Share'], axis=1)
+
+    return df
+
+
+def add_prev_years(df, n, list_metrics):
+    """ xxx
+
+    Parameters
+    ----------
+    xxxx
+    Returns
+    -------
+    xxx
+    """
+
+    # Sanity Check
+    if type(list_metrics) != list:
+        print('Metrics must be of type "list"!')
+        return None
+
+    if type(n) != int:
+        print('n must be of type "int"!')
+        return None
+
+    # Calculate a list of years for which the financial ratios need to be added as a separate column
+    list_years = list(range(0, n + 1))
+
+    # Add columns for each metric to the dataframe
+    for metric in list_metrics:
+        for year in list_years:
+            df[metric + str('_t') + str(year)
+               ] = df.groupby('cusip')[metric].shift(year)
+            if year == list_years[-1]:
+                df[metric + str('_avg')] = df.iloc[:, (-n-1)                                                   :].mean(axis=1)  # calculate & add mean
+                # calculate & add standard deviation
+                df[metric + str('_std')] = df.iloc[:, (-n-2):-1].std(axis=1)
+                # drop metric column as it is now already included with metric_t0
+                df = df.drop([metric], axis=1)
+
+    return df

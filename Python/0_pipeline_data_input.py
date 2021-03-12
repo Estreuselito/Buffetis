@@ -16,38 +16,38 @@ logger.info("\nPlease input your Wharton Username and Password\n")
 # # # the following line of code, receivces all data from the SEC file server
 logger.info("\nReceiving the data from the SEC filings.\n")
 SEC = SEC(connection, "BERKSHIRE HATHAWAY INC", "13F-HR")
-SEC.get_index(1993)
-SEC.save_to_database()
+# SEC.get_index(1993)
+# SEC.save_to_database()
 
-# Queries the urls from the database
-urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
-                   connection, parse_dates=['DateOfIssue']).query('DateOfIssue <= "2012-03-01"')
-# Uses the urls to access the Edgar Archives and returns a dataframe with
-# the necessary information
-until_2012 = SEC.extract_info_13F_until2012(urls["TextUrl"])
+# # Queries the urls from the database
+# urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
+#                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue <= "2012-03-01"')
+# # Uses the urls to access the Edgar Archives and returns a dataframe with
+# # the necessary information
+# until_2012 = SEC.extract_info_13F_until2012(urls["TextUrl"])
 
-# Queries the urls from the database
-urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
-                   connection, parse_dates=['DateOfIssue']).query('DateOfIssue >= "2013-08-01"')
-# Uses the urls to access the Edgar Archives and returns a dataframe with
-# the necessary information
-from_2014 = SEC.extract_info_13F_from2014(urls["TextUrl"])
+# # Queries the urls from the database
+# urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
+#                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue >= "2013-08-01"')
+# # Uses the urls to access the Edgar Archives and returns a dataframe with
+# # the necessary information
+# from_2014 = SEC.extract_info_13F_from2014(urls["TextUrl"])
 
-# Create a new table in the database
-until_2012.to_sql("Quarterly_investments",
-                  connection, if_exists="replace", index=False)
+# # Create a new table in the database
+# until_2012.to_sql("Quarterly_investments",
+#                   connection, if_exists="replace", index=False)
 
-manuel_extracted_years = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
-    "NameOfCompany", "Class", "CUSIP", "MarketValue", "SharesHeld", "date"], dtype={"CUSIP": str})
+# manuel_extracted_years = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
+#     "NameOfCompany", "Class", "CUSIP", "MarketValue", "SharesHeld", "date"], dtype={"CUSIP": str})
 
-manuel_extracted_years.to_sql(
-    "Quarterly_investments", connection, if_exists="append", index=False)
+# manuel_extracted_years.to_sql(
+#     "Quarterly_investments", connection, if_exists="append", index=False)
 
-# Append to that table
-from_2014.to_sql("Quarterly_investments",
-                 connection, if_exists="append", index=False)
+# # Append to that table
+# from_2014.to_sql("Quarterly_investments",
+#                  connection, if_exists="append", index=False)
 
-SEC.clean_SEC_filings()
+# SEC.clean_SEC_filings()
 
 # This is accessing and downlaoding the correct stock data of Wharton on a monthly basis
 # Currently we want to get all stock informations of S&P 500 companies plus
@@ -73,8 +73,8 @@ wrds_conn.raw_sql(f"""SELECT
                       FROM crsp.msf a
                       LEFT JOIN crsp.mse b ON a.cusip = b.cusip AND a.permno = b.permno
                       WHERE a.date>='01/01/2000'
-                      AND a.cusip IN {ticker.get_all_cusips(8)}
-                      AND b.cusip IN {ticker.get_all_cusips(8)}
+                      AND a.cusip IN {ticker.get_all_cusips(9)}
+                      AND b.cusip IN {ticker.get_all_cusips(9)}
                       LIMIT 1000"""  # This can be deleted once this project is finished,
                   # however bear in mind, that if you delete the limit it can take
                   # quite a while to get all that data, I am talking here about
