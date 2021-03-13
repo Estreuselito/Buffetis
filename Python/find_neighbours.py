@@ -45,7 +45,6 @@ def find_neighbour(df_all, df_investments):
 
         # Sort Dataframe by difference
         df_ind_year_match_sorted = df_ind_year_match.sort_values('dif_at')
-
         # Second element will be the nearest neighbour (first element is investment company)
         if len(df_ind_year_match_sorted) > 1:
             benchmark = df_ind_year_match_sorted.iloc[1, :]
@@ -55,5 +54,6 @@ def find_neighbour(df_all, df_investments):
 
     # Only return dataframe with cusip, sic and fyear
     df_benchmark = df_benchmark.loc[:, ['cusip', 'sic', 'fyear']]
+    df_benchmark["dummy_variable"] = 2
 
     return df_benchmark

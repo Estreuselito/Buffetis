@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 class Financial_ratios():
     def gross_profit_margin(self, gross_profit, revenue):
         """Gross profit is the profit a company makes after \
@@ -503,7 +505,7 @@ class Financial_ratios():
 
 
 def compute_financial_ratios(df):
-    print(df.columns)
+    #print(df.columns)
     ############################### Profitability #################################
     # Gross Profit Margin: Gross Profit divided by Sales
     df['Gross_Profit_Margin'] = df['gp'] / df['sale']
@@ -658,7 +660,7 @@ def add_prev_years(df, n, list_metrics):
     list_years = list(range(0, n + 1))
 
     # Add columns for each metric to the dataframe
-    for metric in list_metrics:
+    for metric in tqdm(list_metrics, desc = "Calculating..."):
         for year in list_years:
             df[metric + str('_t') + str(year)
                ] = df.groupby('cusip')[metric].shift(year)

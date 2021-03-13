@@ -16,38 +16,38 @@ logger.info("\nPlease input your Wharton Username and Password\n")
 # # # the following line of code, receivces all data from the SEC file server
 logger.info("\nReceiving the data from the SEC filings.\n")
 SEC = SEC(connection, "BERKSHIRE HATHAWAY INC", "13F-HR")
-# SEC.get_index(1993)
-# SEC.save_to_database()
+SEC.get_index(1993)
+SEC.save_to_database()
 
-# # Queries the urls from the database
-# urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
-#                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue <= "2012-03-01"')
-# # Uses the urls to access the Edgar Archives and returns a dataframe with
-# # the necessary information
-# until_2012 = SEC.extract_info_13F_until2012(urls["TextUrl"])
+# Queries the urls from the database
+urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
+                   connection, parse_dates=['DateOfIssue']).query('DateOfIssue <= "2012-03-01"')
+# Uses the urls to access the Edgar Archives and returns a dataframe with
+# the necessary information
+until_2012 = SEC.extract_info_13F_until2012(urls["TextUrl"])
 
-# # Queries the urls from the database
-# urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
-#                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue >= "2013-08-01"')
-# # Uses the urls to access the Edgar Archives and returns a dataframe with
-# # the necessary information
-# from_2014 = SEC.extract_info_13F_from2014(urls["TextUrl"])
+# Queries the urls from the database
+urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
+                   connection, parse_dates=['DateOfIssue']).query('DateOfIssue >= "2013-08-01"')
+# Uses the urls to access the Edgar Archives and returns a dataframe with
+# the necessary information
+from_2014 = SEC.extract_info_13F_from2014(urls["TextUrl"])
 
-# # Create a new table in the database
-# until_2012.to_sql("Quarterly_investments",
-#                   connection, if_exists="replace", index=False)
+# Create a new table in the database
+until_2012.to_sql("Quarterly_investments",
+                  connection, if_exists="replace", index=False)
 
-# manuel_extracted_years = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
-#     "NameOfCompany", "Class", "CUSIP", "MarketValue", "SharesHeld", "date"], dtype={"CUSIP": str})
+manuel_extracted_years = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
+    "NameOfCompany", "Class", "CUSIP", "MarketValue", "SharesHeld", "date"], dtype={"CUSIP": str})
 
-# manuel_extracted_years.to_sql(
-#     "Quarterly_investments", connection, if_exists="append", index=False)
+manuel_extracted_years.to_sql(
+    "Quarterly_investments", connection, if_exists="append", index=False)
 
-# # Append to that table
-# from_2014.to_sql("Quarterly_investments",
-#                  connection, if_exists="append", index=False)
+# Append to that table
+from_2014.to_sql("Quarterly_investments",
+                 connection, if_exists="append", index=False)
 
-# SEC.clean_SEC_filings()
+SEC.clean_SEC_filings()
 
 # This is accessing and downlaoding the correct stock data of Wharton on a monthly basis
 # Currently we want to get all stock informations of S&P 500 companies plus
@@ -60,15 +60,15 @@ ticker = Cusips(connection)
 logger.info("\nBe aware that currently the Stock data is limited to 100 rows!\nOnce you \
 disable that limit it takes more than 20 min to receive all the data!\n")
 
-wrds_conn.raw_sql(f"""SELECT 
+wrds_conn.raw_sql(f"""SELECT
                       a.permno AS permno,
-                      a.cusip AS cusip , 
-                      a.date AS date, 
+                      a.cusip AS cusip ,
+                      a.date AS date,
                       b.comnam AS company_name,
-                      a.prc AS price, 
-                      a.vol AS volume, 
-                      a.ret AS return, 
-                      a.retx AS return_ex, 
+                      a.prc AS price,
+                      a.vol AS volume,
+                      a.ret AS return,
+                      a.retx AS return_ex,
                       a.shrout AS shares_outstanding
                       FROM crsp.msf a
                       LEFT JOIN crsp.mse b ON a.cusip = b.cusip AND a.permno = b.permno
@@ -83,9 +83,9 @@ wrds_conn.raw_sql(f"""SELECT
 
 # This is accessing and downloading the anual fundamental data of Wharton for
 # all S&P 500 companies plus Warren Buffets investments based on a ticker filter
-wrds_conn.raw_sql(f"""SELECT 
-                      a.tic AS ticker, 
-                      a.cusip AS cusip, 
+wrds_conn.raw_sql(f"""SELECT
+                      a.tic AS ticker,
+                      a.cusip AS cusip,
                       a.conm AS company_name,
                       a.fdate AS date_a,
                       a.gp AS gross_profit,
@@ -114,7 +114,7 @@ wrds_conn.raw_sql(f"""SELECT
                       a.dltis AS long_term_debt_issuance,
                       a.dltr AS long_term_debt_reduction
                       FROM comp.funda a
-                      WHERE a.fdate >='01/01/1980' 
+                      WHERE a.fdate >='01/01/1980'
                       AND a.cusip IN {ticker.get_all_cusips(9)}"""
                   ).to_sql("fundamentals_a", connection,
                            if_exists="replace", index=False)
@@ -122,9 +122,9 @@ wrds_conn.raw_sql(f"""SELECT
 # this is accessing and downloading the quarterly fundamental data of Wharton for
 # all S&P 500 companies plus Warren Buffets investments based on a ticker filter
 #
-wrds_conn.raw_sql(f"""SELECT 
-                      b.tic AS ticker, 
-                      b.cusip AS cusip, 
+wrds_conn.raw_sql(f"""SELECT
+                      b.tic AS ticker,
+                      b.cusip AS cusip,
                       b.conm AS company_name,
                       b.fdateq AS date_q,
                       b.xsgaq AS sga_q,
@@ -138,7 +138,7 @@ wrds_conn.raw_sql(f"""SELECT
                       b.req AS retained_earnings_q,
                       b.tstkq AS treasury_stock_total_q
                       FROM comp.fundq b
-                      WHERE b.fdateq >= '01/01/1980' 
+                      WHERE b.fdateq >= '01/01/1980'
                       AND b.cusip IN {ticker.get_all_cusips(9)}"""
                   ).to_sql("fundamentals_q", connection,
                            if_exists="replace", index=False)
