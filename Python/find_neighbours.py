@@ -19,6 +19,7 @@ def find_neighbour(df_all, df_investments):
         # Determine sic_code
         sic_code = df_all["sic"][df_all["cusip"] == cusip]
         # print(sic_code[:1])
+
         # Determine year
         year = df_investments.loc[investment, "year"]
         # print(sic_code)
