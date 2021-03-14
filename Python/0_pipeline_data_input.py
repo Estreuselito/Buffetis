@@ -37,10 +37,25 @@ from_2014 = SEC.extract_info_13F_from2014(urls["TextUrl"])
 until_2012.to_sql("Quarterly_investments",
                   connection, if_exists="replace", index=False)
 
-manuel_extracted_years = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
+manual_extracted_years = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
     "NameOfCompany", "Class", "CUSIP", "MarketValue", "SharesHeld", "date"], dtype={"CUSIP": str})
 
-manuel_extracted_years.to_sql(
+Investment_history_BH = (pd.read_excel("./data/BH_Investment_History1980-2000.xlsx", usecols=[
+    "File Date", "Shares Held at End of Qtr", "Sole Voting Authority Shares Held", "Shared Voting Authority Shares Held", "Stock Name", "Stock Class Code", "Cusip"], dtype={"Cusip": str})
+    .rename(columns={
+        "File Date": "date", "Shares Held at End of Qtr": "SharesHeld",
+        "Sole Voting Authority Shares Held": "Voting Authority",
+        "Stock Name": "NameOfCompany", "Stock Class Code": "Class",
+        "Cusip": "CUSIP"}))
+
+col_list = ["date", "SharesHeld",
+            "Voting Authority", "NameOfCompany", "CUSIP", "Class"]
+Investment_history_BH = Investment_history_BH[col_list]
+Investment_history_BH.to_sql(
+    "Quarterly_investments", connection, if_exists="append", index=False)
+
+
+manual_extracted_years.to_sql(
     "Quarterly_investments", connection, if_exists="append", index=False)
 
 # Append to that table

@@ -1,5 +1,6 @@
 from tqdm import tqdm
 
+
 class Financial_ratios():
     def gross_profit_margin(self, gross_profit, revenue):
         """Gross profit is the profit a company makes after \
@@ -505,7 +506,7 @@ class Financial_ratios():
 
 
 def compute_financial_ratios(df):
-    #print(df.columns)
+    # print(df.columns)
     ############################### Profitability #################################
     # Gross Profit Margin: Gross Profit divided by Sales
     df['Gross_Profit_Margin'] = df['gp'] / df['sale']
@@ -514,7 +515,7 @@ def compute_financial_ratios(df):
     df['SG&A_Expense_Ratio'] = df['xsga'] / df['sale']
 
     # R&D Expense Ratio: Research & Development Expenses divided by Sales
-    df['R&D_Expense_Ratio'] = df['xrd'] / df['sale']
+    # df['R&D_Expense_Ratio'] = df['xrd'] / df['sale']
 
     # Depreciation Expense Ratio: Depreciation Expenses divided by Sales
     df['Depreciation_Expense_Ratio'] = df['dp'] / df['sale']
@@ -528,12 +529,12 @@ def compute_financial_ratios(df):
     # Return on Equity
     # Shift to allow for Calculation of Return on Equity
     df['prev_Total_Stockholders_Equity'] = df.groupby(
-        'cusip')['teq'].shift()  # cusip in groupby
+        'cusip')['seq'].shift()  # cusip in groupby
 
     # Calculation
     # Return on Equity: Net Income divided by Average of Total Equity current year and Total Equity Stock prior year
     df['Return_on_Equity'] = df['ni'] / \
-        ((df['teq'] + df['prev_Total_Stockholders_Equity']) / 2)
+        ((df['seq'] + df['prev_Total_Stockholders_Equity']) / 2)
 
     # Drop Column
     df = df.drop(['prev_Total_Stockholders_Equity'], axis=1)
@@ -554,7 +555,7 @@ def compute_financial_ratios(df):
 
     ############################ Capital Structure #################################
     # Debt to Equity Ratio: Debt divided by Equity
-    df['D/E_Ratio'] = df['dt'] / df['teq']
+    df['D/E_Ratio'] = df['dltt'] / df['seq']
 
     # Long-Term Debt / Net Income:
     df['Long_Term_Debt_to_Net_Income'] = df['dltt'] / df['ni']
@@ -592,7 +593,7 @@ def compute_financial_ratios(df):
     df = df.drop(['prev_FCFE_2'], axis=1)
 
     # Cash Flow Coverage Ratio: Operation Cash Flow / Total Debt
-    df['Cash_Flow_Coverage_Ratio'] = df['oancf'] / df['dt']
+    df['Cash_Flow_Coverage_Ratio'] = df['oancf'] / df['dltt']
 
     ############################ Payout Structure ############################
     # Dividend Payout Ratio: Dividents Paid divided by Net Income
@@ -660,12 +661,13 @@ def add_prev_years(df, n, list_metrics):
     list_years = list(range(0, n + 1))
 
     # Add columns for each metric to the dataframe
-    for metric in tqdm(list_metrics, desc = "Calculating..."):
+    for metric in tqdm(list_metrics, desc="Calculating..."):
         for year in list_years:
             df[metric + str('_t') + str(year)
                ] = df.groupby('cusip')[metric].shift(year)
             if year == list_years[-1]:
-                df[metric + str('_avg')] = df.iloc[:, (-n-1)                                                   :].mean(axis=1)  # calculate & add mean
+                df[metric + str('_avg')] = df.iloc[:, (-n-1)
+                                :].mean(axis=1)  # calculate & add mean
                 # calculate & add standard deviation
                 df[metric + str('_std')] = df.iloc[:, (-n-2):-1].std(axis=1)
                 # drop metric column as it is now already included with metric_t0
