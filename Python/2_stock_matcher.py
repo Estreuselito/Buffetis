@@ -9,6 +9,7 @@ import math
 logger.info("Loading the stocks data from local drive!\n")
 stocks_buffett = pd.read_sql('Select date, cusip, return from stocks_m', connection)
 
+stocks_buffett["cusip"] = stocks_buffett["cusip"].astype(str).str[:8]
 stocks_buffett['year'] = stocks_buffett['datadate'].dt.year
 stocks_buffett['month'] = stocks_buffett['datadate'].dt.month
 
@@ -16,7 +17,10 @@ stocks_buffett.to_sql('stock_match_mth', connection,
                       if_exists="replace", index=False)
 
 logger.info("Reading the cleaned SEC data from the SQL Database!\n")
-sec_filings = pd.read_sql('SELECT SUBSTR(CUSIP, 1, 9) as cusip, MIN(date) AS date FROM Quarterly_investments csf GROUP BY CUSIP', connection, parse_dates=["date"])
+
+sec_filings = pd.read_sql(
+    'SELECT SUBSTR(CUSIP, 1, 8) as cusip, MIN(date) AS date FROM Clean_SEC_filings csf GROUP BY CUSIP', connection, parse_dates=["date"])
+
 sec_filings['year'] = sec_filings['date'].dt.year
 sec_filings['month'] = sec_filings['date'].dt.month
 
@@ -51,6 +55,7 @@ final_df = final_df[final_df["dummy_variable"] != 0]
 final_df = final_df[final_df["dummy_variable"] != 3]
 
 # final_df = final_df.dropna(subset=["dummy_variable"])
+final_df = final_df.replace([np.inf, -np.inf], np.nan)
 final_df["dummy_variable"] = final_df["dummy_variable"].replace(2, 0)
 final_df.to_sql('monthly_match', connection, if_exists="replace")
 logger.info("Done!\n")

@@ -10,6 +10,8 @@ def find_neighbour(df_all, df_investments):
 
     # Initialize empty DataFrame for benchmark companies
     df_benchmark = pd.DataFrame()
+    df_all = df_all.dropna(
+        subset=["Depreciation_Expense_Ratio_t0", "Gross_Profit_Margin_t0", "Net_Profit_Margin_t0", "Long_Term_Debt_to_Net_Income_t0", "Fixed_Assets_to_Total_Assets_t0", "Dividend_Payout_Ratio_t0", "Rel_Change_Earnings_per_Share_t0"])
 
     for investment in tqdm(list(range(0, count_investments))):
 
@@ -17,6 +19,9 @@ def find_neighbour(df_all, df_investments):
         cusip = df_investments.loc[investment, "cusip"]
         # print(cusip)
         # Determine sic_code
+        df_all["sic"] = df_all["sic"].astype(str).str[:2]
+        # print(df_all["sic2"])
+        # df_all["sic2"] = df_all["sic2"].astype(int)
         sic_code = df_all["sic"][df_all["cusip"] == cusip]
         # print(sic_code[:1])
 
@@ -27,7 +32,7 @@ def find_neighbour(df_all, df_investments):
             continue
         # Filter dataframe to only same industry
         # instead of sic_code, we need to only use the first two digits of the sic_code
-        df_ind_match = df_all[df_all['sic'] == sic_code.values[0]]
+        df_ind_match = df_all[df_all['sic'] == sic_code.values[0][:2]]
 
         # Filter dataframe to only same industry and year
         df_ind_year_match = df_ind_match[df_ind_match['fyear'] == year]

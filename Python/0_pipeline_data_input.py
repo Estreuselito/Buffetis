@@ -16,12 +16,11 @@ logger.info("\nPlease input your Wharton Username and Password\n")
 # # # the following line of code, receivces all data from the SEC file server
 logger.info("\nReceiving the data from the SEC filings.\n")
 
+
 manuel_extracted_years = pd.read_excel("./SEC_filings_final.xlsx", dtype={"CUSIP_8Digits": str, "Date": str, "CUSIP_9Digits": str})
 
 manuel_extracted_years.to_sql(
     "Quarterly_investments", connection, if_exists="replace", index=False)
-
-
 
 # This is accessing and downlaoding the correct stock data of Wharton on a monthly basis
 # Currently we want to get all stock informations of S&P 500 companies plus
