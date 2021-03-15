@@ -35,5 +35,5 @@ for i in CUSIP:
     new_df = new_df.append(data_0)
     new_df = new_df.append(data_1)
 
-#new_df
+
 new_df.to_csv(r'./data/premium_labeled.csv', index = False)
