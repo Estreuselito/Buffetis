@@ -44,8 +44,8 @@ wrds_conn.raw_sql(f"""SELECT
                       (select * from crsp.mse c where c.date >='01/01/1980' and c.comnam is not null) b 
                       ON a.cusip = b.cusip AND a.permno = b.permno
                       WHERE a.date>='01/01/1980'
-                      AND a.cusip IN {ticker.get_all_cusips()}
-                      AND b.cusip IN {ticker.get_all_cusips()}
+                      AND a.cusip IN {ticker.get_all_cusips(8)}
+                      AND b.cusip IN {ticker.get_all_cusips(8)}
                       """  # This can be deleted once this project is finished,
                   # however bear in mind, that if you delete the limit it can take
                   # quite a while to get all that data, I am talking here about
@@ -86,7 +86,7 @@ wrds_conn.raw_sql(f"""SELECT
                       a.dltr AS long_term_debt_reduction
                       FROM comp.funda a
                       WHERE a.fdate >='01/01/1980'
-                      AND a.cusip IN {ticker.get_all_cusips()}"""
+                      AND a.cusip IN {ticker.get_all_cusips(9)}"""
                   ).to_sql("fundamentals_a", connection,
                            if_exists="replace", index=False)
 
@@ -110,7 +110,7 @@ wrds_conn.raw_sql(f"""SELECT
                       b.tstkq AS treasury_stock_total_q
                       FROM comp.fundq b
                       WHERE b.fdateq >= '01/01/1980'
-                      AND b.cusip IN {ticker.get_all_cusips()}"""
+                      AND b.cusip IN {ticker.get_all_cusips(9)}"""
                   ).to_sql("fundamentals_q", connection,
                            if_exists="replace", index=False)
 

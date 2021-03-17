@@ -10,4 +10,5 @@ openpyxl
 wrds
 tqdm 
 statsmodels
+xlrd
 
