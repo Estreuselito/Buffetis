@@ -26,6 +26,7 @@ In general this repository has two different kinds of scripts. Once the [Project
   - [```data_storage.py```](#data_storagepy)
   - [```financial_ratios.py```](#financial_ratiospy)
   - [```receiving_sec_data.py```](#receiving_sec_datapy)
+  - [```get_cusips.py```](#get_cusipspy)
 - [References](#references)
 
 # How to get You started!
