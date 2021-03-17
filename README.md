@@ -20,6 +20,8 @@ In general this repository has two different kinds of scripts. Once the [Project
   - [```0_pipeline_data_input.py```](#0_pipeline_data_inputpy)
   - [```1_pipeline_calc_ratios.py```](#1_pipeline_calc_ratiospy)
   - [```2_stock_matcher.py```](#2_stock_matcherpy)
+  - [```3_premium_matcher.py```](#3_premium_matcherpy)
+  - [```4_premium_dummies.py```](#4_premium_dummiespy)
 - [Helper Scripts](#helper-scripts)
   - [```data_storage.py```](#data_storagepy)
   - [```financial_ratios.py```](#financial_ratiospy)
@@ -124,6 +126,15 @@ Within this script, we were able to crawl the EDGAR database (for the 13HR-F fil
 from Berkshire Hathaway). It almost works, the only bug is, that the year sometimes
 is one row to high or to low. If this is fixed, this script can be used with slight
 modifications for other SEC-filings and companies.
+
+## ```get_cusips.py```
+> This script is used to get the distinct cusips out of the SEC filings
+
+By using this helper script we retrieve all cusips from the SEC filings we loaded into our database first.
+Based on these retrieved cusips we filter the data we want to load from Wharton and limit the execution time as well 
+as saving storage. 
+
+
 # References
 
 [1] https://commons.wikimedia.org/wiki/File:SQLite370.svg
