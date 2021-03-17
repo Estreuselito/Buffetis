@@ -2,11 +2,27 @@ import pandas as pd
 
 
 class Cusips():
+    """This class receives all ticker and cusips from Quarterly_investments
+    """
 
     def __init__(self, connection):
+        """Initializes the object with a database connection
+
+        Parameters
+        ----------
+        connection : sqlite3.cursor
+            This is the sqlite3.cursor for the database
+        """
         self.connection = connection
 
-    def get_all_cusips(self, string_number):
+    def get_all_cusips(self):
+        """Receives all distinct CUSIPS from the Quarterly_investment table 
+
+        Returns
+        -------
+        tuple
+            A tuple with all distinct CUSIPS
+        """
         # get cusips from Warren Buffets investment
         cusips_SEC_filings = pd.read_sql_query(
             f"SELECT DISTINCT CUSIP_9Digits AS CUSIP FROM Quarterly_investments", self.connection)
@@ -21,6 +37,13 @@ class Cusips():
         return tuple(total_cusips)
 
     def get_all_ticker(self):
+        """Receives all the distinct tickers from the fundamentals_a table
+
+        Returns
+        -------
+        tuple
+            Returns a tuple with all the distinct tickers from the fundamentals_a table 
+        """
 
         ticker_fundamentals = pd.read_sql_query(
             "SELECT DISTINCT ticker FROM fundamentals_a", self.connection)

@@ -5,7 +5,7 @@ Authors: *[Yannik Suhre](https://github.com/Estreuselito), [Jan Faulstich](https
 
 ![language](https://img.shields.io/badge/language-Python%20%7C%20Docker-blue)
 ![version](https://img.shields.io/badge/version-v1.0.0-yellow)
-![last-edited](https://img.shields.io/badge/last%20edited-04.03.2021-green)
+![last-edited](https://img.shields.io/badge/last%20edited-17.03.2021-green)
 ![licence](https://img.shields.io/badge/licence-GPLv3-red)
 
 ![Workflow](./images/Workflow.png)
@@ -19,9 +19,11 @@ In general this repository has two different kinds of scripts. Once the [Project
 - [Project steps](#project-steps)
   - [```0_pipeline_data_input.py```](#0_pipeline_data_inputpy)
   - [```1_pipeline_calc_ratios.py```](#1_pipeline_calc_ratiospy)
+  - [```2_stock_matcher.py```](#2_stock_matcherpy)
 - [Helper Scripts](#helper-scripts)
   - [```data_storage.py```](#data_storagepy)
   - [```financial_ratios.py```](#financial_ratiospy)
+  - [```receiving_sec_data.py```](#receiving_sec_datapy)
 - [References](#references)
 
 # How to get You started!
@@ -40,7 +42,12 @@ In total this project has ... scripts in total.
 This script contains a function and a function statement
 which automatically creates the connection to the database
 Buffet or creates it, if it is not existant in the folder
-database.
+database. Furthermore it loads the data into the database.
+Please be aware that we were **NOT** able to share our data,
+since this is paid data. Please be adviced to either contact
+us directly or use the script [```receiving_sec_data.py```](#receiving_sec_datapy).
+Furthermore, you need to have a [```Wharton``` Account](https://wrds-www.wharton.upenn.edu/login/).
+
 
 ## ```1_pipeline_calc_ratios.py```
 > 🧮 Within this script several finacial indicators are calculated
@@ -51,6 +58,22 @@ was created in the first script. Then it initialized the class
 [```financial_ratios.py```](#finacial_ratiospy). It then creates
 a ```pandas``` dataframe, where all the different ratios are stored
 in. In the end this is written back to SQLite database.
+
+## ```2_stock_matcher.py```
+> 📈 This script calculates the final data for analysis
+
+This script first gets the initial investments for Berkshire Hathaway.
+This is necessary in order to find benchmark companies later on. It then
+reads the necessary data from Wharton which is by then saved in the database
+and calculates the given metrics for the previous years. In order to make
+proper analysis later on, this script ensures to drop all observations
+which have missing values in the selected columns. It the finds
+benchmark companies for each investment company Berkshire Hathaway made.
+This is done by selecting a company which has the same first two
+SIC Code numbers in the same year and has the closest difference in terms
+of the total asset to the investment company. Lastly, all the gather information
+is joined onto a dataframe which only contains the initial investments and their
+respective benchmark companies.
 
 # Helper Scripts
 > ⛑️ These kind of scripts are used to help provided user written functions
@@ -69,7 +92,17 @@ Within this script a class, which is named ```Financial_ratios```.
 This class contains several functions, which calculate different
 ratios, To see what functions there are and what they refer to,
 please see their docstring, since they are pretty well documented.
-In the end, this class is leveraged in the script [```1_pipeline_calc_ratios.py```](#1_pipeline_calc_ratiospy). 
+In the end, this class  not leveraged in the script [```1_pipeline_calc_ratios.py```](#1_pipeline_calc_ratiospy). 
+Instead there is also another function called ```compute_financial_ratios```
+which in the end was used for calculating the information.
+
+## ```receiving_sec_data.py```
+> 🗄️ This is a script, which can crawl the EDGAR database and retrieve the files
+
+Within this script, we were able to crawl the EDGAR database (for the 13HR-F filings
+from Berkshire Hathaway). It almost works, the only bug is, that the year sometimes
+is one row to high or to low. If this is fixed, this script can be used with slight
+modifications for other SEC-filings and companies.
 # References
 
 [1] https://commons.wikimedia.org/wiki/File:SQLite370.svg

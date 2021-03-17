@@ -1,3 +1,6 @@
+# PLEASE BE AWARE THAT THIS SCRIPT IS NOT PROPERLY WORKING.
+# For further information consult the README!
+
 import pandas as pd
 import os
 from tqdm import tqdm

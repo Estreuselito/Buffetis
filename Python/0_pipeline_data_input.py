@@ -2,83 +2,32 @@
 # into the database.
 import pandas as pd
 from data_storage import connection
-# from receiving_sec_data import SEC
 import wrds
 from get_cusips import Cusips
 from logger import logger
 
-# General usage
-wrds_conn = wrds.Connection()
-# Yanniks usage
+# Wharton Login
 logger.info("\nPlease input your Wharton Username and Password\n")
-# wrds_conn = wrds.Connection(wrds_username="gacela")
+wrds_conn = wrds.Connection()
 
-# # # the following line of code, receivces all data from the SEC file server
-logger.info("\nReceiving the data from the SEC filings.\n")
+# the following line of code, receivces all data from the SEC file server
+logger.info(
+    "\Reading the local SEC data.\nIf this should not work, please consult the README!")
 
 # this is the manual extracted file now
 (pd.read_excel("./data/SEC_Filings_final.xlsx", parse_dates=["Date"])
  .to_sql("Quarterly_investments", connection, if_exists="replace", index=False))
-
-# SEC = SEC(connection, "BERKSHIRE HATHAWAY INC", "13F-HR")
-# SEC.get_index(1993)
-# SEC.save_to_database()
-
-# # Queries the urls from the database
-# urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
-#                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue <= "2012-03-01"')
-# # Uses the urls to access the Edgar Archives and returns a dataframe with
-# # the necessary information
-# until_2012 = SEC.extract_info_13F_until2012(urls["TextUrl"])
-
-# # Queries the urls from the database
-# urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
-#                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue >= "2013-08-01"')
-# # Uses the urls to access the Edgar Archives and returns a dataframe with
-# # the necessary information
-# from_2014 = SEC.extract_info_13F_from2014(urls["TextUrl"])
-
-# # Create a new table in the database
-# until_2012.to_sql("Quarterly_investments",
-#                   connection, if_exists="replace", index=False)
-
-# manual_extracted_years = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
-#     "NameOfCompany", "Class", "CUSIP", "MarketValue", "SharesHeld", "date"], dtype={"CUSIP": str})
-
-# Investment_history_BH = (pd.read_excel("./data/BH_Investment_History1980-2000.xlsx", usecols=[
-#     "File Date", "Shares Held at End of Qtr", "Sole Voting Authority Shares Held", "Shared Voting Authority Shares Held", "Stock Name", "Stock Class Code", "Cusip"], dtype={"Cusip": str})
-#     .rename(columns={
-#         "File Date": "date", "Shares Held at End of Qtr": "SharesHeld",
-#         "Sole Voting Authority Shares Held": "Voting Authority",
-#         "Stock Name": "NameOfCompany", "Stock Class Code": "Class",
-#         "Cusip": "CUSIP"}))
-
-# col_list = ["date", "SharesHeld",
-#             "Voting Authority", "NameOfCompany", "CUSIP", "Class"]
-# Investment_history_BH = Investment_history_BH[col_list]
-# Investment_history_BH.to_sql(
-#     "Quarterly_investments", connection, if_exists="append", index=False)
-
-
-# manual_extracted_years.to_sql(
-#     "Quarterly_investments", connection, if_exists="append", index=False)
-
-# # Append to that table
-# from_2014.to_sql("Quarterly_investments",
-#                  connection, if_exists="append", index=False)
-
-# SEC.clean_SEC_filings()
 
 # This is accessing and downlaoding the correct stock data of Wharton on a monthly basis
 # Currently we want to get all stock informations of S&P 500 companies plus
 # Warren Buffets investments
 logger.info("\nReceiving the data from Wharton!\n")
 
+# Create a Cusips object, in order to query the database with it later
 ticker = Cusips(connection)
-# total_cusips = ticker.get_all_cgusips()
 
-logger.info("\nBe aware that currently the Stock data is limited to 100 rows!\nOnce you \
-disable that limit it takes more than 20 min to receive all the data!\n")
+logger.info("\nBe aware that currently the Stock data is NOT limited! Thus it can take\
+     a bit for this to finish.\n")
 
 wrds_conn.raw_sql(f"""SELECT
                       a.permno AS permno,
@@ -95,8 +44,8 @@ wrds_conn.raw_sql(f"""SELECT
                       (select * from crsp.mse c where c.date >='01/01/1980' and c.comnam is not null) b 
                       ON a.cusip = b.cusip AND a.permno = b.permno
                       WHERE a.date>='01/01/1980'
-                      AND a.cusip IN {ticker.get_all_cusips(8)}
-                      AND b.cusip IN {ticker.get_all_cusips(8)}
+                      AND a.cusip IN {ticker.get_all_cusips()}
+                      AND b.cusip IN {ticker.get_all_cusips()}
                       """  # This can be deleted once this project is finished,
                   # however bear in mind, that if you delete the limit it can take
                   # quite a while to get all that data, I am talking here about
@@ -137,7 +86,7 @@ wrds_conn.raw_sql(f"""SELECT
                       a.dltr AS long_term_debt_reduction
                       FROM comp.funda a
                       WHERE a.fdate >='01/01/1980'
-                      AND a.cusip IN {ticker.get_all_cusips(9)}"""
+                      AND a.cusip IN {ticker.get_all_cusips()}"""
                   ).to_sql("fundamentals_a", connection,
                            if_exists="replace", index=False)
 
@@ -161,7 +110,7 @@ wrds_conn.raw_sql(f"""SELECT
                       b.tstkq AS treasury_stock_total_q
                       FROM comp.fundq b
                       WHERE b.fdateq >= '01/01/1980'
-                      AND b.cusip IN {ticker.get_all_cusips(9)}"""
+                      AND b.cusip IN {ticker.get_all_cusips()}"""
                   ).to_sql("fundamentals_q", connection,
                            if_exists="replace", index=False)
 
