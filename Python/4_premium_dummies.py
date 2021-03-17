@@ -16,9 +16,10 @@ for i in CUSIP:
     for j in range(len(data)):
         if data.iloc[j, -1] == 1:
             temp = j
-            pass
+            
         else:
             continue
+
     data['dummy_variable'] = 0
     data['month_rank'] = 0
     data_0 = data[:temp]
