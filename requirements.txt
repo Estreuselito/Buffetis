@@ -8,4 +8,6 @@ requests==2.25.1
 lxml
 openpyxl
 wrds
+tqdm 
 statsmodels
+

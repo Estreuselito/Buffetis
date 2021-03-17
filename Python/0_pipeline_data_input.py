@@ -91,11 +91,13 @@ wrds_conn.raw_sql(f"""SELECT
                       a.retx AS return_ex,
                       a.shrout AS shares_outstanding
                       FROM crsp.msf a
-                      LEFT JOIN crsp.mse b ON a.cusip = b.cusip AND a.permno = b.permno
-                      WHERE a.date>='01/01/2000'
-                      AND a.cusip IN {ticker.get_all_cusips(9)}
-                      AND b.cusip IN {ticker.get_all_cusips(9)}
-                      LIMIT 1000"""  # This can be deleted once this project is finished,
+                      LEFT JOIN 
+                      (select * from crsp.mse c where c.date >='01/01/1980' and c.comnam is not null) b 
+                      ON a.cusip = b.cusip AND a.permno = b.permno
+                      WHERE a.date>='01/01/1980'
+                      AND a.cusip IN {ticker.get_all_cusips(8)}
+                      AND b.cusip IN {ticker.get_all_cusips(8)}
+                      """  # This can be deleted once this project is finished,
                   # however bear in mind, that if you delete the limit it can take
                   # quite a while to get all that data, I am talking here about
                   # 20 minutes!
