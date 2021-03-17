@@ -78,11 +78,24 @@ respective benchmark companies.
 ## ```3_premium_matcher.py```
 > This script matches the event of Buffett investing in a company with the time series of each stock
 
-This scirpt first gets the year and the month of the date column for both sources, 
+This script first gets the year and the month out of the date column for both sources, 
 the SEC filings and the stock data. We need to do this step to join both data sources based on the cusip,
 year and the month to identify the exact moment Warren Buffett invested into a stock. After we joined both data sources 
 we mark the previously described event with a 1 for the initial investment time in the columns cusip2.
 After executing the code successfully the current tables is loaded into our database.
+
+## ```4_premium_dummies.py```
+> This script ranks the months based on the column cusip2, which is indicating an initial investment
+
+This script loads the data merged in ```3_premium_matcher.py``` into a dataframe in a first step.
+Afterwards we define the target dataframe in which we load the end result of our code. 
+The main idea of this code is to rank the months for each cusip. The month, which is the initial event, is ranked as a zero. 
+All months of the time series before and after that event are incrementally decreasing and increasing depending on whether the data
+is before or after the event t0. Additionally, we also define the dummy variable in this script to do a regression based on the return and
+the dummy variable. The dummy variable is encoded so all months before the event have a 0 as value and all months after the event and including
+the event are encoded by a 1. Once the script is done running it outputs a csv file which you can upload in your excel sheet to build
+a regression based on it.
+
 # Helper Scripts
 > ⛑️ These kind of scripts are used to help provided user written functions
 
