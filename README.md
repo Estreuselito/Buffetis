@@ -75,6 +75,14 @@ of the total asset to the investment company. Lastly, all the gather information
 is joined onto a dataframe which only contains the initial investments and their
 respective benchmark companies.
 
+## ```3_premium_matcher.py```
+> This script matches the event of Buffett investing in a company with the time series of each stock
+
+This scirpt first gets the year and the month of the date column for both sources, 
+the SEC filings and the stock data. We need to do this step to join both data sources based on the cusip,
+year and the month to identify the exact moment Warren Buffett invested into a stock. After we joined both data sources 
+we mark the previously described event with a 1 for the initial investment time in the columns cusip2.
+After executing the code successfully the current tables is loaded into our database.
 # Helper Scripts
 > ⛑️ These kind of scripts are used to help provided user written functions
 
