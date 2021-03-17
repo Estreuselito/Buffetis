@@ -27,6 +27,7 @@ In general this repository has two different kinds of scripts. Once the [Project
   - [```financial_ratios.py```](#financial_ratiospy)
   - [```receiving_sec_data.py```](#receiving_sec_datapy)
   - [```get_cusips.py```](#get_cusipspy)
+  - [```cusips_2_company_name.py```](#cusips_2_company_namepy)
 - [References](#references)
 
 # How to get You started!
@@ -135,6 +136,10 @@ By using this helper script we retrieve all cusips from the SEC filings we loade
 Based on these retrieved cusips we filter the data we want to load from Wharton and limit the execution time as well 
 as saving storage. 
 
+## ```cusips_2_company_name.py```
+> This script matches each cusip with the correct company name
+
+This helper script is used to load cusip and company_name out of our database.
 
 # References
 
