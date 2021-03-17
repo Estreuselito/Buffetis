@@ -122,7 +122,8 @@ class SEC():
             # print(date)
             for tables in range(0, len(html_soup.find_all("table"))):
                 if "Shares" in html_soup.find_all("table")[tables].getText():
-                    #print(f"Table: {tables}")
+                    # print(
+                    # f"Table: {tables}, this is the URL {standard_url + url}, this is the date {date}")
                     tm = html_soup.find_all("table")[tables].find(["c", "C"]).getText()[11:re.search("                         ------", html_soup.find_all(
                         "table")[tables].find(["c", "C"]).getText()).start()]
                     tmp0 = re.sub(r"(?<=[\n])\s+", " ", tm)
@@ -177,27 +178,30 @@ class SEC():
                         r"(Liberty Media)\s*(Lib Cap Corp........)", r"\1 \2", tmp28)
                     tmp30 = re.sub(r"(82028k)\s(20)\s(0)", r"82028K200", tmp29)
                     for line in tmp30.replace("-\n", "").split("\n"):
-                        data = [x.strip() 
+                        data = [x.strip()
                                 for x in line.split("  ") if x][::-1]
                         if not data:
                             continue
+                        data.append(date)
+                        data.append(url)
+                        # print(data)
                         tmp = pd.DataFrame(data).T
-                        if len([x for x in line.split("  ") if x][::-1]) > 6:
+                        if len(data) > 8:
                             tmp.columns = ["Voting Authority", "Other Managers", "Investment Discretion",
-                                           "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
-                        elif len(data) == 6:
+                                           "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany", "date", "url"][:tmp.shape[1]]
+                        elif len(data) == 8:
                             tmp.columns = ["Investment Discretion",
-                                           "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
-                        elif len(data) == 5:
+                                           "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany", "date", "url"][:tmp.shape[1]]
+                        elif len(data) == 7:
                             tmp.columns = ["Voting Authority", "Other Managers", "Investment Discretion",
-                                           "SharesHeld", "MarketValue"][:tmp.shape[1]]
+                                           "SharesHeld", "MarketValue", "date", "url"][:tmp.shape[1]]
                         else:
                             tmp.columns = ["Investment Discretion",
-                                           "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany"][:tmp.shape[1]]
+                                           "SharesHeld", "MarketValue", "CUSIP", "Class", "NameOfCompany", "date", "url"][:tmp.shape[1]]
+        #                 print(df)
                         df = df.append(tmp, ignore_index=True)
-                        [date_list.append(date) for y in range(0, len(tmp))]
-                        [url_list.append(standard_url + url)
-                         for z in range(0, len(tmp))]
+        #                 df["date"].append(date)
+        #                 df["url"].append(url)
                 else:
                     continue
 
@@ -205,11 +209,10 @@ class SEC():
         df = df[df["SharesHeld"].notna()]
         df = df[~df["SharesHeld"].isin(
             ["Companies", 'Chemical Corp.', 'house Inc.', 'Corp.', 'Mellon Corp.', 'Co.', 'X', 'cations Inc.', 'Co. 1887'])]
-        df["SharesHeld"] = df["SharesHeld"].str.replace(
-            ",", "", regex=True).astype(int)
-        df["date"] = date_list[:len(df)]
-        df["url"] = url_list[:len(df)]
-
+        # df["SharesHeld"] = df["SharesHeld"].str.replace(
+        # ",", "", regex=True).astype(int)
+        # df["date"] = date_list[:len(df)]
+        # df["url"] = url_list[:len(df)]
         return df
 
     def clean_SEC_filings(self):

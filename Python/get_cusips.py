@@ -9,7 +9,7 @@ class Cusips():
     def get_all_cusips(self, string_number):
         # get cusips from Warren Buffets investment
         cusips_SEC_filings = pd.read_sql_query(
-            f"SELECT DISTINCT SUBSTR(CUSIP, 1, {string_number}) AS CUSIP FROM Quarterly_investments", self.connection)
+            f"SELECT DISTINCT CUSIP_9Digits AS CUSIP FROM Quarterly_investments", self.connection)
 
         cusips_dict_SEC_filings = cusips_SEC_filings.to_dict(orient='list')
 

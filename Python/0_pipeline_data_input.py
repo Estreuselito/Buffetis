@@ -2,7 +2,7 @@
 # into the database.
 import pandas as pd
 from data_storage import connection
-from receiving_sec_data import SEC
+# from receiving_sec_data import SEC
 import wrds
 from get_cusips import Cusips
 from logger import logger
@@ -15,54 +15,59 @@ logger.info("\nPlease input your Wharton Username and Password\n")
 
 # # # the following line of code, receivces all data from the SEC file server
 logger.info("\nReceiving the data from the SEC filings.\n")
-SEC = SEC(connection, "BERKSHIRE HATHAWAY INC", "13F-HR")
-SEC.get_index(1993)
-SEC.save_to_database()
 
-# Queries the urls from the database
-urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
-                   connection, parse_dates=['DateOfIssue']).query('DateOfIssue <= "2012-03-01"')
-# Uses the urls to access the Edgar Archives and returns a dataframe with
-# the necessary information
-until_2012 = SEC.extract_info_13F_until2012(urls["TextUrl"])
+# this is the manual extracted file now
+(pd.read_excel("./data/SEC_Filings_final.xlsx", parse_dates=["Date"])
+ .to_sql("Quarterly_investments", connection, if_exists="replace", index=False))
 
-# Queries the urls from the database
-urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
-                   connection, parse_dates=['DateOfIssue']).query('DateOfIssue >= "2013-08-01"')
-# Uses the urls to access the Edgar Archives and returns a dataframe with
-# the necessary information
-from_2014 = SEC.extract_info_13F_from2014(urls["TextUrl"])
+# SEC = SEC(connection, "BERKSHIRE HATHAWAY INC", "13F-HR")
+# SEC.get_index(1993)
+# SEC.save_to_database()
 
-# Create a new table in the database
-until_2012.to_sql("Quarterly_investments",
-                  connection, if_exists="replace", index=False)
+# # Queries the urls from the database
+# urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
+#                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue <= "2012-03-01"')
+# # Uses the urls to access the Edgar Archives and returns a dataframe with
+# # the necessary information
+# until_2012 = SEC.extract_info_13F_until2012(urls["TextUrl"])
 
-manual_extracted_years = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
-    "NameOfCompany", "Class", "CUSIP", "MarketValue", "SharesHeld", "date"], dtype={"CUSIP": str})
+# # Queries the urls from the database
+# urls = pd.read_sql("SELECT TextUrl, DateOfIssue FROM SEC_filing_index",
+#                    connection, parse_dates=['DateOfIssue']).query('DateOfIssue >= "2013-08-01"')
+# # Uses the urls to access the Edgar Archives and returns a dataframe with
+# # the necessary information
+# from_2014 = SEC.extract_info_13F_from2014(urls["TextUrl"])
 
-Investment_history_BH = (pd.read_excel("./data/BH_Investment_History1980-2000.xlsx", usecols=[
-    "File Date", "Shares Held at End of Qtr", "Sole Voting Authority Shares Held", "Shared Voting Authority Shares Held", "Stock Name", "Stock Class Code", "Cusip"], dtype={"Cusip": str})
-    .rename(columns={
-        "File Date": "date", "Shares Held at End of Qtr": "SharesHeld",
-        "Sole Voting Authority Shares Held": "Voting Authority",
-        "Stock Name": "NameOfCompany", "Stock Class Code": "Class",
-        "Cusip": "CUSIP"}))
+# # Create a new table in the database
+# until_2012.to_sql("Quarterly_investments",
+#                   connection, if_exists="replace", index=False)
 
-col_list = ["date", "SharesHeld",
-            "Voting Authority", "NameOfCompany", "CUSIP", "Class"]
-Investment_history_BH = Investment_history_BH[col_list]
-Investment_history_BH.to_sql(
-    "Quarterly_investments", connection, if_exists="append", index=False)
+# manual_extracted_years = pd.read_excel("./manual_extracted_sec_files.xlsx", usecols=[
+#     "NameOfCompany", "Class", "CUSIP", "MarketValue", "SharesHeld", "date"], dtype={"CUSIP": str})
+
+# Investment_history_BH = (pd.read_excel("./data/BH_Investment_History1980-2000.xlsx", usecols=[
+#     "File Date", "Shares Held at End of Qtr", "Sole Voting Authority Shares Held", "Shared Voting Authority Shares Held", "Stock Name", "Stock Class Code", "Cusip"], dtype={"Cusip": str})
+#     .rename(columns={
+#         "File Date": "date", "Shares Held at End of Qtr": "SharesHeld",
+#         "Sole Voting Authority Shares Held": "Voting Authority",
+#         "Stock Name": "NameOfCompany", "Stock Class Code": "Class",
+#         "Cusip": "CUSIP"}))
+
+# col_list = ["date", "SharesHeld",
+#             "Voting Authority", "NameOfCompany", "CUSIP", "Class"]
+# Investment_history_BH = Investment_history_BH[col_list]
+# Investment_history_BH.to_sql(
+#     "Quarterly_investments", connection, if_exists="append", index=False)
 
 
-manual_extracted_years.to_sql(
-    "Quarterly_investments", connection, if_exists="append", index=False)
+# manual_extracted_years.to_sql(
+#     "Quarterly_investments", connection, if_exists="append", index=False)
 
-# Append to that table
-from_2014.to_sql("Quarterly_investments",
-                 connection, if_exists="append", index=False)
+# # Append to that table
+# from_2014.to_sql("Quarterly_investments",
+#                  connection, if_exists="append", index=False)
 
-SEC.clean_SEC_filings()
+# SEC.clean_SEC_filings()
 
 # This is accessing and downlaoding the correct stock data of Wharton on a monthly basis
 # Currently we want to get all stock informations of S&P 500 companies plus
